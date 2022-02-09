@@ -15,6 +15,8 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => res.send("Hello!"));
+// Added Fake Data
+// import {fakeData} from "./fakeData";
+// app.get("/", fakeData);
 
 export default app;
