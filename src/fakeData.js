@@ -1,22 +1,38 @@
 import Instructor from "./models/Instructor";
 import Lecture from "./models/Lecture";
 import Video from "./models/Video";
+import Topic from "./models/Topic";
 
 export const fakeData = async (req, res) => {
   const newDate = {
     title: "Theory of City Form",
-    instructor: "Prof. Julian Beinart",
+    instructors: [
+      "Prof. Mark Drela",
+      "Prof. Steven Hall",
+      "Prof. Paul A. Lagace",
+      "Prof. Ingrid Kristina Lundqvist",
+      "Prof. Gustaf Naeser",
+      "Prof. Heidi Perry",
+      "Prof. Raúl Radovitzky",
+      "Prof. Ian A. Waitz",
+      "Col. Peter Young",
+      "Prof. Jennifer L. Craig",
+    ],
     institute: "MIT",
     description:
       "This course covers theories about the form that settlements should take and attempts a distinction between descriptive and normative theory by examining examples of various theories of city form over time. Case studies will highlight the origins of the modern city and theories about its emerging form, including the transformation of the nineteenth-century city and its organization. Through examples and historical context, current issues of city form in relation to city-making, social structure, and physical design will also be discussed and analyzed.",
     topics: [
-      "Architecture > Architectural Design",
+      "Architecture",
+      "Architectural Design",
       "Urban Studies",
-      "Sociology > Community Development",
+      "Sociology",
+      "Community Development",
     ],
     courseId: "4.241J / 11.330J",
-    asTaughtIn: "Spring 2013",
+    asTaughtIn: "2013",
     level: "Graduate",
+    thumbnailUrl:
+      "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/4-241js13.jpg",
     videos: [
       {
         title: "Lec 1: Introduction",
@@ -53,50 +69,62 @@ export const fakeData = async (req, res) => {
 
   const {
     title,
-    instructor,
+    instructors,
     institute,
     description,
     topics,
     courseId,
     asTaughtIn,
     level,
+    thumbnailUrl,
     videos,
   } = newDate;
 
+  const createInstructors = async () => {
+    const instructorIds = [];
+    for (let i = 0; i < instructors.length; ++i) {
+      const instructor = await Instructor.create({ name: instructors[i] });
+      instructorIds.push(instructor._id);
+    }
+    return instructorIds;
+  };
+
+  const createTopics = async () => {
+    const topicIds = [];
+    for (let i = 0; i < topics.length; ++i) {
+      const topic = await Topic.create({ name: topics[i] });
+      topicIds.push(topic._id);
+    }
+    return topicIds;
+  };
+
   try {
+    const [instructorIds, topicIds] = await Promise.all([
+      createInstructors(),
+      createTopics(),
+    ]);
+
     const lecture = await Lecture.create({
       title,
-      institute,
-      description,
-      topics,
-      courseId,
+      instructors: instructorIds,
+      topics: topicIds,
       asTaughtIn,
+      institute,
       level,
-    });
-
-    const dbInstructor = await Instructor.create({
-      name: instructor,
-      lectures: [lecture._id],
+      courseId,
+      description,
+      thumbnailUrl,
     });
 
     videos.forEach(async (video, index) => {
-      const dbVideo = await Video.create({
+      Video.create({
+        belongIn: lecture._id,
         title: video.title,
-        instructors: [dbInstructor._id],
-        institute,
         description: video.description,
         thumbnailUrl: video.thumbnailUrl,
         embededCode: video.embededCode,
         videoLink: video.videoLink,
-        belongIn: lecture._id,
       });
-
-      lecture.videos.push(dbVideo._id);
-
-      if (index === 2) {
-        lecture.instructors.push(dbInstructor._id);
-        lecture.save();
-      }
     });
 
     return res.send("Mongoose!");

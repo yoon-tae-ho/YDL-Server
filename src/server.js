@@ -22,8 +22,8 @@ app.use(
 // Routes
 app.use("/api", apiRouter);
 
-// Added Fake Data
-// import {fakeData} from "./fakeData";
+// Add Fake Data
+// import { fakeData } from "./fakeData";
 // app.get("/", fakeData);
 
 export default app;
