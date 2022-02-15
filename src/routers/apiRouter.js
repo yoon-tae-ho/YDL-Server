@@ -1,9 +1,9 @@
 import express from "express";
-import { getAllLectures } from "../controllers/lectureController";
+import { getLecturePreviews } from "../controllers/lectureController";
 
 const apiRouter = express.Router();
 
 // Lectures
-apiRouter.get("/lectures", getAllLectures);
+apiRouter.get("/lectures", getLecturePreviews);
 
 export default apiRouter;
