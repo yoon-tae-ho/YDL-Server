@@ -16,3 +16,7 @@ export const getLecturePreviews = async (req, res) => {
     console.log(error.message);
   }
 };
+
+export const getLectureDetail = (req, res) => {};
+export const getLecturesOfTopic = (req, res) => {};
+export const getLecturesOfInstructors = (req, res) => {};

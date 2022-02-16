@@ -4,7 +4,8 @@ import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors";
 
-import apiRouter from "./routers/apiRouter";
+import lectureRouter from "./routers/lectureRouter";
+import userRouter from "./routers/userRouter";
 
 const app = express();
 
@@ -20,7 +21,8 @@ app.use(
 );
 
 // Routes
-app.use("/api", apiRouter);
+app.use("/lectures", lectureRouter);
+app.use("/user", userRouter);
 
 // Add Fake Data
 // import { fakeData } from "./fakeData";
