@@ -92,7 +92,10 @@ export const fakeData = async (req, res) => {
   const createTopics = async () => {
     const topicIds = [];
     for (let i = 0; i < topics.length; ++i) {
-      const topic = await Topic.create({ name: topics[i] });
+      let topic = await Topic.findOne({ name: topics[i] });
+      if (!topic) {
+        topic = await Topic.create({ name: topics[i] });
+      }
       topicIds.push(topic._id);
     }
     return topicIds;
