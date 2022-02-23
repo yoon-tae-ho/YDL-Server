@@ -24,7 +24,10 @@ export const getLectureDetail = async (req, res) => {
       .populate([
         { path: "instructors", select: "name" },
         { path: "topics", select: "name" },
-        { path: "videos", select: ["title", "description", "thumbnailUrl"] },
+        {
+          path: "videos",
+          select: ["title", "description", "thumbnailUrl", "embededCode"],
+        },
       ])
       .lean();
     // error process
