@@ -24,20 +24,20 @@ userRouter
   .put(putUser)
   .delete(deleteUser);
 userRouter
-  .route(`/viewed/:id(${process.env.MONGO_RE_FORMAT})`) // id of lecture
+  .route(`/viewed/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postViewed)
   .put(putViewed)
   .delete(deleteViewed);
 userRouter
-  .route(`/booked/:id(${process.env.MONGO_RE_FORMAT})`) // id of lecture
+  .route(`/booked/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postBooked)
   .delete(deleteBooked);
 userRouter
-  .route(`/liked/:id(${process.env.MONGO_RE_FORMAT})`) // id of lecture
+  .route(`/liked/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postLiked)
   .delete(deleteLiked);
 userRouter
-  .route(`/hated/:id(${process.env.MONGO_RE_FORMAT})`) // id of lecture
+  .route(`/hated/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postHated)
   .delete(deleteHated);
 

@@ -9,13 +9,13 @@ import {
 const lectureRouter = express.Router();
 
 lectureRouter.get("/", getLecturePreviews);
-lectureRouter.get(`/:id(${process.env.MONGO_RE_FORMAT})`, getLectureDetail);
+lectureRouter.get(`/:id(${process.env.MONGO_REGEX_FORMAT})`, getLectureDetail);
 lectureRouter.get(
-  `/topics/:id(${process.env.MONGO_RE_FORMAT})`,
+  `/topics/:id(${process.env.MONGO_REGEX_FORMAT})`,
   getLecturesOfTopic
 );
 lectureRouter.get(
-  `/instructors/:id(${process.env.MONGO_RE_FORMAT})`,
+  `/instructors/:id(${process.env.MONGO_REGEX_FORMAT})`,
   getLecturesOfInstructors
 );
 
