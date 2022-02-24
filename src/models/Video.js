@@ -5,7 +5,8 @@ const videoSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   description: { type: String },
   thumbnailUrl: { type: String, required: true },
-  embededCode: { type: String },
+  embededCode: { type: String, required: true },
+  player: { type: String, required: true },
   videoLink: { type: String },
 });
 

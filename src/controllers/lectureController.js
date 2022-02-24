@@ -26,7 +26,13 @@ export const getLectureDetail = async (req, res) => {
         { path: "topics", select: "name" },
         {
           path: "videos",
-          select: ["title", "description", "thumbnailUrl", "embededCode"],
+          select: [
+            "title",
+            "description",
+            "thumbnailUrl",
+            "embededCode",
+            "player",
+          ],
         },
       ])
       .lean();
