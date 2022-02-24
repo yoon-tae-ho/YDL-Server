@@ -40,7 +40,7 @@ export const fakeData = async (req, res) => {
           "This lecture covers the motivations for the course, an introduction of urban history, and the role of cities throughout human history. The professor gives a brief explanation of each topic that is to be covered in the course.",
         thumbnailUrl: "https://img.youtube.com/vi/k2_wuThLG6o/default.jpg",
         embededCode:
-          '<iframe src="https://www.youtube.com/v/k2_wuThLG6o" height=325 width=545 frameborder=0></iframe>',
+          '<iframe width="560" height="315" src="https://www.youtube.com/embed/k2_wuThLG6o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
         videoLink:
           "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/video-lectures/lec-1-introduction",
       },
@@ -50,7 +50,7 @@ export const fakeData = async (req, res) => {
           "This lecture focuses on the cosmic model of the city, and the city as a consciousness and expression of religion. Some examples discussed include Solomon's temple, Eliade's depiction of the archaic man, feng shui, Athens, and barays.",
         thumbnailUrl: "https://img.youtube.com/vi/rbTLRBdEcqA/default.jpg",
         embededCode:
-          '<iframe src="https://www.youtube.com/v/rbTLRBdEcqA" height=325 width=545 frameborder=0></iframe>',
+          '<iframe width="560" height="315" src="https://www.youtube.com/embed/rbTLRBdEcqA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
         videoLink:
           "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/video-lectures/lec-2-normative-theory-i-the-city-as-supernatural",
       },
@@ -60,7 +60,7 @@ export const fakeData = async (req, res) => {
           "This lecture covers the machine model, characterized by visual economy, decentralization, and urbanizing at low costs. Comparisons are drawn between the cosmic model, with examples including colonial expansion in Greece, Roman cities, and French bastides.",
         thumbnailUrl: "https://img.youtube.com/vi/oBKDFgLoR9o/default.jpg",
         embededCode:
-          '<iframe src="https://www.youtube.com/v/oBKDFgLoR9o" height=325 width=545 frameborder=0></iframe>',
+          '<iframe width="560" height="315" src="https://www.youtube.com/embed/oBKDFgLoR9o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
         videoLink:
           "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/video-lectures/lec-3-normative-theory-ii-the-city-as-machine",
       },
