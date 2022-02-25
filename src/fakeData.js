@@ -41,6 +41,7 @@ export const fakeData = async (req, res) => {
         thumbnailUrl: "https://img.youtube.com/vi/k2_wuThLG6o/default.jpg",
         embededCode:
           '<iframe width="560" height="315" src="https://www.youtube.com/embed/k2_wuThLG6o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
+        player: "YouTube",
         videoLink:
           "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/video-lectures/lec-1-introduction",
       },
@@ -51,6 +52,7 @@ export const fakeData = async (req, res) => {
         thumbnailUrl: "https://img.youtube.com/vi/rbTLRBdEcqA/default.jpg",
         embededCode:
           '<iframe width="560" height="315" src="https://www.youtube.com/embed/rbTLRBdEcqA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
+        player: "YouTube",
         videoLink:
           "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/video-lectures/lec-2-normative-theory-i-the-city-as-supernatural",
       },
@@ -61,6 +63,7 @@ export const fakeData = async (req, res) => {
         thumbnailUrl: "https://img.youtube.com/vi/oBKDFgLoR9o/default.jpg",
         embededCode:
           '<iframe width="560" height="315" src="https://www.youtube.com/embed/oBKDFgLoR9o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
+        player: "YouTube",
         videoLink:
           "https://ocw.mit.edu/courses/architecture/4-241j-theory-of-city-form-spring-2013/video-lectures/lec-3-normative-theory-ii-the-city-as-machine",
       },
@@ -102,33 +105,36 @@ export const fakeData = async (req, res) => {
   };
 
   try {
-    const [instructorIds, topicIds] = await Promise.all([
-      createInstructors(),
-      createTopics(),
-    ]);
+    for (let j = 0; j < 40; ++j) {
+      const [instructorIds, topicIds] = await Promise.all([
+        createInstructors(),
+        createTopics(),
+      ]);
 
-    const lecture = await Lecture.create({
-      title,
-      instructors: instructorIds,
-      topics: topicIds,
-      asTaughtIn,
-      institute,
-      level,
-      courseId,
-      description,
-      thumbnailUrl,
-    });
-
-    videos.forEach(async (video, index) => {
-      Video.create({
-        belongIn: lecture._id,
-        title: video.title,
-        description: video.description,
-        thumbnailUrl: video.thumbnailUrl,
-        embededCode: video.embededCode,
-        videoLink: video.videoLink,
+      const lecture = await Lecture.create({
+        title,
+        instructors: instructorIds,
+        topics: topicIds,
+        asTaughtIn,
+        institute,
+        level,
+        courseId,
+        description,
+        thumbnailUrl,
       });
-    });
+
+      videos.forEach(async (video, index) => {
+        Video.create({
+          belongIn: lecture._id,
+          title: video.title,
+          description: video.description,
+          thumbnailUrl: video.thumbnailUrl,
+          embededCode: video.embededCode,
+          videoLink: video.videoLink,
+          player: video.player,
+        });
+      });
+    }
 
     return res.send("Mongoose!");
   } catch (error) {
