@@ -10,7 +10,6 @@ const lectureSchema = new mongoose.Schema(
     asTaughtIn: { type: String, required: true, trim: true },
     institute: { type: String, required: true, trim: true },
     level: { type: String, trim: true },
-    courseId: { type: String, required: true },
     description: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
     meta: {
