@@ -6,6 +6,7 @@ import cors from "cors";
 
 import lectureRouter from "./routers/lectureRouter";
 import userRouter from "./routers/userRouter";
+import topicRouter from "./routers/topicRouter";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(
 );
 
 // Routes
+app.use("/topics", topicRouter);
 app.use("/lectures", lectureRouter);
 app.use("/user", userRouter);
 
