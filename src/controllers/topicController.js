@@ -3,6 +3,8 @@ import Instructor from "../models/Instructor";
 import Video from "../models/Video";
 import Topic from "../models/Topic";
 
+const MAX_BROWSE_LECTURES = 40;
+
 export const getInitial = async (req, res) => {
   try {
     const initialTopics = [
@@ -23,6 +25,7 @@ export const getInitial = async (req, res) => {
         Topic.findOne({ name: topic }).populate({
           path: "lectures",
           select: process.env.LECTURE_PREVIEW_FIELDS,
+          options: { limit: MAX_BROWSE_LECTURES },
           populate: { path: "topics" },
         })
       )
@@ -57,6 +60,7 @@ export const getMore = async (req, res) => {
         .populate({
           path: "lectures",
           select: process.env.LECTURE_PREVIEW_FIELDS,
+          options: { limit: MAX_BROWSE_LECTURES },
           populate: { path: "topics" },
         })
         .skip(randomIndex);
