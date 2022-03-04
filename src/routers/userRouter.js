@@ -13,6 +13,7 @@ import {
   deleteLiked,
   postHated,
   deleteHated,
+  join,
 } from "../controllers/userController";
 
 const userRouter = express.Router();
@@ -20,7 +21,7 @@ const userRouter = express.Router();
 userRouter
   .route("/")
   .get(getUser)
-  .post(postUser)
+  .post(postUser) // login
   .put(putUser)
   .delete(deleteUser);
 userRouter
@@ -40,6 +41,7 @@ userRouter
   .route(`/hated/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postHated)
   .delete(deleteHated);
+userRouter.post("/join", join);
 
 // get이 필요?
 

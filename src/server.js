@@ -3,6 +3,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
 import lectureRouter from "./routers/lectureRouter";
 import userRouter from "./routers/userRouter";
@@ -18,6 +20,19 @@ app.use(
   cors({
     origin: process.env.CORS_URL,
     optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
+app.use(
+  session({
+    secret: "test",
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      sameSite: false,
+    },
   })
 );
 
