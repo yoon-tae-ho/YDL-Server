@@ -25,13 +25,15 @@ app.use(
 );
 app.use(
   session({
-    secret: "test",
+    secret: process.env.COOKIE_SECRET,
     store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false, // dont save session in DB if he did not login.
     cookie: {
       httpOnly: true,
-      sameSite: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // One Week
+      // secure: true, // after https
     },
   })
 );
