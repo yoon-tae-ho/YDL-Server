@@ -1,7 +1,6 @@
 import express from "express";
 import {
   getUser,
-  postUser,
   putUser,
   deleteUser,
   postViewed,
@@ -13,17 +12,17 @@ import {
   deleteLiked,
   postHated,
   deleteHated,
-  join,
+  startSocialLogin,
+  finishSocialLogin,
+  logout,
 } from "../controllers/userController";
 
 const userRouter = express.Router();
 
-userRouter
-  .route("/")
-  .get(getUser)
-  .post(postUser) // login
-  .put(putUser)
-  .delete(deleteUser);
+userRouter.get("/social/:social/start", startSocialLogin);
+userRouter.get("/social/:social/finish", finishSocialLogin);
+userRouter.get("/logout", logout);
+userRouter.route("/").get(getUser).put(putUser).delete(deleteUser);
 userRouter
   .route(`/viewed/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postViewed)
@@ -41,8 +40,5 @@ userRouter
   .route(`/hated/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
   .post(postHated)
   .delete(deleteHated);
-userRouter.post("/join", join);
-
-// get이 필요?
 
 export default userRouter;
