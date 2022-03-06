@@ -1,6 +1,11 @@
 import User from "../models/User";
 import Video from "../models/Video";
-import { startGithubLogin, finishGithubLogin } from "./socialController";
+import {
+  startGithubLogin,
+  finishGithubLogin,
+  startKakaoLogin,
+  finishKakaoLogin,
+} from "./socialController";
 
 export const getUser = async (req, res) => {
   const { loggedIn, user } = req.session;
@@ -46,6 +51,8 @@ export const startSocialLogin = (req, res) => {
   switch (social) {
     case "github":
       return startGithubLogin(req, res);
+    case "kakao":
+      return startKakaoLogin(req, res);
     default:
       return;
   }
@@ -56,6 +63,8 @@ export const finishSocialLogin = (req, res) => {
   switch (social) {
     case "github":
       return finishGithubLogin(req, res);
+    case "kakao":
+      return finishKakaoLogin(req, res);
     default:
       return;
   }
