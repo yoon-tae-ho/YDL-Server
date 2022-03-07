@@ -157,9 +157,10 @@ export const finishKakaoLogin = async (req, res) => {
     ).json();
 
     const {
-      properties: { nickname, thumbnail_image },
-      kakao_account: { email, has_email },
-    } = userData;
+      email,
+      has_email,
+      profile: { nickname, thumbnail_image_url },
+    } = userData.kakao_account;
 
     // error process
     if (!has_email) {
@@ -172,11 +173,96 @@ export const finishKakaoLogin = async (req, res) => {
         email,
         username: nickname,
         social: "Kakao",
-        avatarUrl: thumbnail_image || "",
+        avatarUrl: thumbnail_image_url || "",
       });
     } else {
       user.social = "Kakao";
-      user.avatarUrl = thumbnail_image || "";
+      user.avatarUrl = thumbnail_image_url || "";
+      await user.save();
+    }
+
+    // login
+    req.session.loggedIn = true;
+    req.session.user = user;
+
+    return res.redirect(loginSuccessedUrl);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Naver
+
+export const startNaverLogin = (req, res) => {
+  const baseUrl = "https://nid.naver.com/oauth2.0/authorize";
+  const config = {
+    client_id: process.env.NAVER_CLIENT,
+    response_type: "code",
+    redirect_uri: "http://localhost:4000/user/social/naver/finish",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+
+export const finishNaverLogin = async (req, res) => {
+  const baseUrl = "https://nid.naver.com/oauth2.0/token";
+  const config = {
+    grant_type: "authorization_code",
+    client_id: process.env.NAVER_CLIENT,
+    client_secret: process.env.NAVER_SECRET,
+    code: req.query.code,
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  try {
+    // get access token
+    const tokenRequest = await (
+      await fetch(finalUrl, {
+        method: "POST",
+        headers: {
+          Accept: "application/json;charset=UTF-8",
+        },
+      })
+    ).json();
+
+    if (!("access_token" in tokenRequest)) {
+      return res.status(404).redirect(loginFailedUrl);
+    }
+
+    const { access_token } = tokenRequest;
+    const apiUrl = "https://openapi.naver.com/v1/nid/me";
+    // get user data
+    const userData = await (
+      await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
+        },
+      })
+    ).json();
+
+    // error process
+    if (userData.message !== "success") {
+      return res.status(404).redirect(loginFailedUrl);
+    }
+
+    const { nickname, email, profile_image, name } = userData.response;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        email,
+        username:
+          nickname[nickname.length - 1] === "*" && name ? name : nickname,
+        social: "Naver",
+        avatarUrl: profile_image || "",
+      });
+    } else {
+      user.social = "Naver";
+      user.avatarUrl = profile_image || "";
       await user.save();
     }
 

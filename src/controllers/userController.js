@@ -5,6 +5,8 @@ import {
   finishGithubLogin,
   startKakaoLogin,
   finishKakaoLogin,
+  startNaverLogin,
+  finishNaverLogin,
 } from "./socialController";
 
 export const getUser = async (req, res) => {
@@ -53,6 +55,8 @@ export const startSocialLogin = (req, res) => {
       return startGithubLogin(req, res);
     case "kakao":
       return startKakaoLogin(req, res);
+    case "naver":
+      return startNaverLogin(req, res);
     default:
       return;
   }
@@ -65,6 +69,8 @@ export const finishSocialLogin = (req, res) => {
       return finishGithubLogin(req, res);
     case "kakao":
       return finishKakaoLogin(req, res);
+    case "naver":
+      return finishNaverLogin(req, res);
     default:
       return;
   }
