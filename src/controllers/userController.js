@@ -7,6 +7,8 @@ import {
   finishKakaoLogin,
   startNaverLogin,
   finishNaverLogin,
+  startGoogleLogin,
+  finishGoogleLogin,
 } from "./socialController";
 
 export const getUser = async (req, res) => {
@@ -57,6 +59,8 @@ export const startSocialLogin = (req, res) => {
       return startKakaoLogin(req, res);
     case "naver":
       return startNaverLogin(req, res);
+    case "google":
+      return startGoogleLogin(req, res);
     default:
       return;
   }
@@ -71,6 +75,8 @@ export const finishSocialLogin = (req, res) => {
       return finishKakaoLogin(req, res);
     case "naver":
       return finishNaverLogin(req, res);
+    case "google":
+      return finishGoogleLogin(req, res);
     default:
       return;
   }

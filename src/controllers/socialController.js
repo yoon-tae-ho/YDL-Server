@@ -93,6 +93,7 @@ export const finishGithubLogin = async (req, res) => {
     return res.status(200).redirect(loginSuccessedUrl);
   } catch (error) {
     console.log(error);
+    return res.status(404).redirect(loginFailedUrl);
   }
 };
 
@@ -188,6 +189,7 @@ export const finishKakaoLogin = async (req, res) => {
     return res.redirect(loginSuccessedUrl);
   } catch (error) {
     console.log(error);
+    return res.status(404).redirect(loginFailedUrl);
   }
 };
 
@@ -273,5 +275,94 @@ export const finishNaverLogin = async (req, res) => {
     return res.redirect(loginSuccessedUrl);
   } catch (error) {
     console.log(error);
+    return res.status(404).redirect(loginFailedUrl);
+  }
+};
+
+// Google
+
+export const startGoogleLogin = (req, res) => {
+  const baseUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+  const config = {
+    client_id: process.env.GOOGLE_CLIENT,
+    redirect_uri: "http://localhost:4000/user/social/google/finish",
+    response_type: "code",
+    scope:
+      "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+
+export const finishGoogleLogin = async (req, res) => {
+  const baseUrl = "https://oauth2.googleapis.com/token";
+  const config = {
+    client_id: process.env.GOOGLE_CLIENT,
+    client_secret: process.env.GOOGLE_SECRET,
+    code: req.query.code,
+    grant_type: "authorization_code",
+    redirect_uri: "http://localhost:4000/user/social/google/finish",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  try {
+    // get access token
+    const tokenRequest = await (
+      await fetch(finalUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "application/json;charset=UTF-8",
+        },
+      })
+    ).json();
+
+    // error process
+    if (!("access_token" in tokenRequest)) {
+      return res.status(404).redirect(loginFailedUrl);
+    }
+
+    const { access_token } = tokenRequest;
+    const apiUrl = "https://www.googleapis.com/userinfo/v2/me";
+    // get user data
+    const userData = await (
+      await fetch(`${apiUrl}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          Accept: "application/json;charset=utf-8",
+        },
+      })
+    ).json();
+
+    if (!userData.email) {
+      return res.status(404).redirect(loginFailedUrl);
+    }
+
+    const { email, name, picture } = userData;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        email,
+        username: name,
+        social: "Google",
+        avatarUrl: picture || "",
+      });
+    } else {
+      user.social = "Google";
+      user.avatarUrl = picture || "";
+      await user.save();
+    }
+
+    // login
+    req.session.loggedIn = true;
+    req.session.user = user;
+
+    return res.redirect(loginSuccessedUrl);
+  } catch (error) {
+    console.log(error);
+    return res.status(404).redirect(loginFailedUrl);
   }
 };
