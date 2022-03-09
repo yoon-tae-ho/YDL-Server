@@ -16,29 +16,46 @@ import {
   finishSocialLogin,
   logout,
 } from "../controllers/userController";
+import { protectorMiddleware, publicOnlyMiddleware } from "../middlewares";
 
 const userRouter = express.Router();
 
-userRouter.get("/social/:social/start", startSocialLogin);
-userRouter.get("/social/:social/finish", finishSocialLogin);
-userRouter.get("/logout", logout);
-userRouter.route("/").get(getUser).put(putUser).delete(deleteUser);
+// user data
 userRouter
   .route(`/viewed/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
+  .all(protectorMiddleware)
   .post(postViewed)
   .put(putViewed)
   .delete(deleteViewed);
 userRouter
   .route(`/booked/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
+  .all(protectorMiddleware)
   .post(postBooked)
   .delete(deleteBooked);
 userRouter
   .route(`/liked/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
+  .all(protectorMiddleware)
   .post(postLiked)
   .delete(deleteLiked);
 userRouter
   .route(`/hated/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
+  .all(protectorMiddleware)
   .post(postHated)
   .delete(deleteHated);
+userRouter
+  .route("/")
+  .all(protectorMiddleware)
+  .get(getUser)
+  .put(putUser)
+  .delete(deleteUser);
+
+// login / logout
+userRouter.get("/social/:social/start", publicOnlyMiddleware, startSocialLogin);
+userRouter.get(
+  "/social/:social/finish",
+  publicOnlyMiddleware,
+  finishSocialLogin
+);
+userRouter.get("/logout", protectorMiddleware, logout);
 
 export default userRouter;
