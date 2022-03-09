@@ -46,6 +46,24 @@ export const getLectureDetail = async (req, res) => {
   }
 };
 
+export const getFirstVideo = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const lecture = await Lecture.findById(id, "_id")
+      .populate("videos", "embededCode player")
+      .lean();
+
+    if (!lecture) {
+      return res.sendStatus(404);
+    }
+
+    return res.status(200).json(lecture.videos[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getLecturesOfInstructors = async (req, res) => {
   const { id } = req.params;
   try {

@@ -20,7 +20,9 @@ export const getUser = async (req, res) => {
 
   const viewed = await Promise.all(
     user.viewed.map(async (obj) => ({
-      video: await Video.findById(obj.video),
+      video: await Video.findById(obj.video, {
+        select: "belongIn embededCode player",
+      }).lean(),
       time: obj.time,
     }))
   );
