@@ -22,7 +22,7 @@ export const sessionMiddleware = session({
 });
 
 export const protectorMiddleware = (req, res, next) => {
-  if (!req.session.loggedIn) {
+  if (!req.session || !req.session.loggedIn) {
     return res.sendStatus(401);
   }
   return next();
