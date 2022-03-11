@@ -46,14 +46,14 @@ export const getInitial = async (req, res) => {
 
 export const getMore = async (req, res) => {
   const excepts = JSON.parse(req.headers.excepts);
-  const TOPIC_NUM = 5;
+  const MAX_TOPIC = 5;
   const result = [];
   try {
     let count = (await Topic.estimatedDocumentCount()) - excepts.length;
     let randomIndex = Math.floor(Math.random() * count);
-    const ended = count <= TOPIC_NUM;
+    const ended = count <= MAX_TOPIC;
 
-    for (let i = 0; i < (ended ? count + i : TOPIC_NUM); ++i) {
+    for (let i = 0; i < (ended ? count + i : MAX_TOPIC); ++i) {
       const topic = await Topic.findOne({
         _id: { $nin: excepts },
       })
@@ -83,19 +83,36 @@ export const getMore = async (req, res) => {
 };
 
 export const getLecturesOfTopic = async (req, res) => {
-  const { id } = req.params;
+  const {
+    params: { id },
+    headers: { fetch_index },
+  } = req;
+  const MAX_LECTURES = 40;
+  let ended = false;
+
   try {
-    const topic = await Topic.findById(id)
-      .populate({
-        path: "lectures",
-        select: `${process.env.LECTURE_PREVIEW_FIELDS}`,
-      })
-      .lean();
+    const topic = await Topic.findById(id).populate({
+      path: "lectures",
+      select: process.env.LECTURE_PREVIEW_FIELDS,
+      options: { skip: MAX_LECTURES * fetch_index, limit: MAX_LECTURES + 1 },
+      populate: { path: "topics" },
+    });
+
     // error process
-    if (!topic) {
+    if (!topic || topic.lectures.length === 0) {
       return res.sendStatus(404);
     }
-    return res.status(200).json(topic);
+
+    const count = topic.lectures.length;
+    if (count === MAX_LECTURES + 1) {
+      // not ended
+      topic.lectures = topic.lectures.slice(0, -1);
+    } else {
+      // ended
+      ended = true;
+    }
+
+    return res.status(200).json({ topic, ended });
   } catch (error) {
     console.log(error.message);
   }
