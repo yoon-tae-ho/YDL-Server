@@ -63,20 +63,3 @@ export const getFirstVideo = async (req, res) => {
     console.log(error);
   }
 };
-
-export const getLecturesOfInstructors = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const instructor = await Instructor.findById(id).populate({
-      path: "lectures",
-      select: `${process.env.LECTURE_PREVIEW_FIELDS}`,
-    });
-    // error process
-    if (!instructor) {
-      return res.sendStatus(404);
-    }
-    return res.status(200).json(instructor);
-  } catch (error) {
-    console.log(error.message);
-  }
-};

@@ -22,6 +22,10 @@ app.use("/topics", topicRouter);
 app.use("/lectures", lectureRouter);
 app.use("/user", userRouter);
 
+// Add Data
+import { getData } from "./data";
+app.use("/data", getData);
+
 // Add Fake Data
 // import { fakeData } from "./fakeData";
 // app.get("/", fakeData);

@@ -8,16 +8,11 @@ const MAX_BROWSE_LECTURES = 40;
 export const getInitial = async (req, res) => {
   try {
     const initialTopics = [
-      "Architecture",
-      "Architectural Design",
-      "Urban Studies",
-      "Sociology",
-      "Community Development",
-      // "statistic",
-      // "computer science",
-      // "artificial intelligence",
-      // "economy",
-      // "business",
+      "computerscience",
+      "business",
+      "mathematics",
+      "finance",
+      "publichealth",
     ];
 
     const result = await Promise.all(
@@ -136,5 +131,41 @@ export const getLecturesByTopicName = async (req, res) => {
     return res.status(200).json(result);
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getLecturesOfInstructors = async (req, res) => {
+  const {
+    params: { id },
+    headers: { fetch_index },
+  } = req;
+  const MAX_LECTURES = 40;
+  let ended = false;
+
+  try {
+    const instructor = await Instructor.findById(id).populate({
+      path: "lectures",
+      select: process.env.LECTURE_PREVIEW_FIELDS,
+      options: { skip: MAX_LECTURES * fetch_index, limit: MAX_LECTURES + 1 },
+      populate: { path: "topics" },
+    });
+
+    // error process
+    if (!instructor || instructor.lectures.length === 0) {
+      return res.sendStatus(404);
+    }
+
+    const count = instructor.lectures.length;
+    if (count === MAX_LECTURES + 1) {
+      // not ended
+      instructor.lectures = instructor.lectures.slice(0, -1);
+    } else {
+      // ended
+      ended = true;
+    }
+
+    return res.status(200).json({ instructor, ended });
+  } catch (error) {
+    console.log(error.message);
   }
 };
