@@ -8,11 +8,11 @@ const MAX_BROWSE_LECTURES = 40;
 export const getInitial = async (req, res) => {
   try {
     const initialTopics = [
-      "computerscience",
-      "business",
-      "mathematics",
-      "finance",
-      "publichealth",
+      "Computer Science",
+      "Business",
+      "Mathematics",
+      "Economics",
+      "Philosophy",
     ];
 
     const result = await Promise.all(
