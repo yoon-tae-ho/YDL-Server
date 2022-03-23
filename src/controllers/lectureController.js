@@ -51,7 +51,11 @@ export const getFirstVideo = async (req, res) => {
 
   try {
     const lecture = await Lecture.findById(id, "_id")
-      .populate("videos", "embededCode player")
+      .populate({
+        path: "videos",
+        select: "_id",
+        options: { limit: 1 },
+      })
       .lean();
 
     if (!lecture) {

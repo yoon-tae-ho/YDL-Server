@@ -18,32 +18,131 @@ export const getUser = async (req, res) => {
     return res.sendStatus(404);
   }
 
-  const viewed = await Promise.all(
-    user.viewed.map(async (obj) => ({
-      video: await Video.findById(obj.video, {
-        select: "belongIn embededCode player",
-      }).lean(),
-      time: obj.time,
-    }))
-  );
+  // const viewed = await Promise.all(
+  //   user.viewed.map(async (obj) => ({
+  //     video: await Video.findById(obj.video, {
+  //       select: "belongIn embededCode player",
+  //     }).lean(),
+  //     time: obj.time,
+  //   }))
+  // );
 
-  const client = {
-    email: user.email,
-    username: user.username,
-    avatarUrl: user.avatarUrl,
-    viewed,
-    booked: user.booked,
-    liked: user.liked,
-    hated: user.hated,
-  };
+  // const client = {
+  //   email: user.email,
+  //   username: user.username,
+  //   avatarUrl: user.avatarUrl,
+  //   viewed,
+  //   booked: user.booked,
+  //   liked: user.liked,
+  //   hated: user.hated,
+  // };
 
-  return res.status(200).json(client);
+  return res.status(200).json(user);
 };
 
 export const putUser = (req, res) => {};
 export const deleteUser = (req, res) => {};
-export const postViewed = (req, res) => {};
-export const putViewed = (req, res) => {};
+
+export const getViewed = async (req, res) => {
+  const {
+    params: { id },
+  } = req;
+
+  try {
+    const video = await Video.findById(id, "embededCode player").lean();
+
+    // error process
+    if (!video) {
+      return res.sendStatus(404);
+    }
+
+    return res.status(200).json(video);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const putViewed = async (req, res) => {
+  const {
+    params: { id },
+    body: { time, duration },
+    session: {
+      user: { _id, viewed },
+    },
+  } = req;
+
+  try {
+    const videoObj = await Video.findById(
+      id,
+      "belongIn embededCode videoIndex player"
+    ).lean();
+
+    // this video does not exist.
+    if (!videoObj) {
+      return res.sendStatus(404);
+    }
+
+    let index;
+    let lectureIndex = -1;
+    let aView = viewed.find((aView, i) => {
+      if (String(aView.lectureId) === String(videoObj.belongIn)) {
+        lectureIndex = i;
+      }
+
+      index = aView.videos.findIndex(
+        (video) => String(video.videoId) === String(id)
+      );
+      return index !== -1;
+    });
+
+    let newViewed = [];
+    const newVideo = {
+      videoId: id,
+      videoCode: videoObj.embededCode,
+      videoIndex: videoObj.videoIndex,
+      player: videoObj.player,
+      time,
+      duration,
+    };
+    if (lectureIndex !== -1) {
+      // this lecture of video already exists in viewed
+      newViewed = viewed.filter((_, i) => i !== lectureIndex);
+
+      let newVideos = viewed[lectureIndex].videos;
+      if (index !== -1) {
+        // this video already exists in viewed
+        newVideos = aView.videos.filter((_, i) => i !== index);
+      }
+
+      newViewed = [
+        {
+          lectureId: videoObj.belongIn,
+          videos: [newVideo, ...newVideos],
+        },
+        ...newViewed,
+      ];
+    } else {
+      newViewed = [
+        {
+          lectureId: videoObj.belongIn,
+          videos: [newVideo],
+        },
+        ...viewed,
+      ];
+    }
+
+    // update in DB
+    await User.findByIdAndUpdate(_id, { viewed: newViewed });
+
+    // update in req.session
+    req.session.user.viewed = newViewed;
+
+    return res.status(200).json(newViewed);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const deleteViewed = (req, res) => {};
 
 export const postBooked = (req, res) => {

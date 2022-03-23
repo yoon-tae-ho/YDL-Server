@@ -7,8 +7,17 @@ const userSchema = new mongoose.Schema({
   avatarUrl: { type: String },
   viewed: [
     {
-      video: { type: mongoose.ObjectId, required: true, ref: "Video" },
-      time: { type: String, required: true },
+      lectureId: { type: mongoose.ObjectId, required: true, ref: "Lecture" },
+      videos: [
+        {
+          videoId: { type: mongoose.ObjectId, required: true },
+          videoCode: { type: String, required: true }, // video embededCode
+          videoIndex: { type: Number, required: true },
+          player: { type: String, required: true },
+          time: { type: Number, required: true },
+          duration: { type: Number, required: true },
+        },
+      ],
     },
   ],
   booked: [{ type: mongoose.ObjectId, ref: "Lecture" }],

@@ -3,7 +3,7 @@ import {
   getUser,
   putUser,
   deleteUser,
-  postViewed,
+  getViewed,
   putViewed,
   deleteViewed,
   postBooked,
@@ -22,9 +22,9 @@ const userRouter = express.Router();
 
 // user data
 userRouter
-  .route(`/viewed/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of lecture
+  .route(`/viewed/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of video
+  .get(getViewed)
   .all(protectorMiddleware)
-  .post(postViewed)
   .put(putViewed)
   .delete(deleteViewed);
 userRouter
