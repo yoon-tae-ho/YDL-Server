@@ -4,8 +4,18 @@ import Video from "../models/Video";
 import Topic from "../models/Topic";
 
 const MAX_BROWSE_LECTURES = 40;
+const CONTINUE_WATCHING = "continue-watching";
 
 export const getInitial = async (req, res) => {
+  const {
+    session: { loggedIn, user },
+  } = req;
+
+  let username, viewed;
+  if (user) {
+    ({ username, viewed } = user);
+  }
+
   try {
     const initialTopics = [
       "Computer Science",
@@ -26,6 +36,30 @@ export const getInitial = async (req, res) => {
       )
     );
 
+    if (loggedIn && viewed.length !== 0) {
+      const viewedTopic = {
+        _id: CONTINUE_WATCHING,
+        name: `${username} 님이 시청중인 강의`,
+        lectures: [],
+      };
+
+      viewedTopic.lectures = await Promise.all(
+        viewed.map((aView) =>
+          Lecture.findById(
+            aView.lectureId,
+            process.env.LECTURE_PREVIEW_FIELDS,
+            {
+              options: { limit: MAX_BROWSE_LECTURES },
+            }
+          )
+            .populate("topics")
+            .lean()
+        )
+      );
+
+      result.splice(2, 0, viewedTopic);
+    }
+
     // error process
     for (let i = 0; i < result.length; ++i) {
       if (!result[i]) {
@@ -40,7 +74,9 @@ export const getInitial = async (req, res) => {
 };
 
 export const getMore = async (req, res) => {
-  const excepts = JSON.parse(req.headers.excepts);
+  const excepts = JSON.parse(req.headers.excepts).filter(
+    (except) => except !== CONTINUE_WATCHING
+  );
   const MAX_TOPIC = 5;
   const result = [];
   try {
@@ -81,17 +117,62 @@ export const getLecturesOfTopic = async (req, res) => {
   const {
     params: { id },
     headers: { fetch_index },
+    session: { loggedIn, user },
   } = req;
+
+  let username, viewed;
+  if (user) {
+    ({ username, viewed } = user);
+  }
+
   const MAX_LECTURES = 40;
   let ended = false;
 
   try {
-    const topic = await Topic.findById(id).populate({
-      path: "lectures",
-      select: process.env.LECTURE_PREVIEW_FIELDS,
-      options: { skip: MAX_LECTURES * fetch_index, limit: MAX_LECTURES + 1 },
-      populate: { path: "topics" },
-    });
+    let topic = {};
+    switch (id) {
+      case CONTINUE_WATCHING:
+        if (!loggedIn) {
+          return res.sendStatus(401);
+        }
+
+        topic = {
+          _id: CONTINUE_WATCHING,
+          name: `${username} 님이 시청중인 강의`,
+          lectures: [],
+        };
+
+        const start = MAX_LECTURES * fetch_index;
+        const end = start + MAX_LECTURES + 1;
+        const targetViewed = viewed.slice(start, end);
+
+        topic.lectures = await Promise.all(
+          targetViewed.map((aView) =>
+            Lecture.findById(
+              aView.lectureId,
+              process.env.LECTURE_PREVIEW_FIELDS,
+              {
+                options: { limit: MAX_BROWSE_LECTURES },
+              }
+            )
+              .populate("topics")
+              .lean()
+          )
+        );
+        break;
+
+      default:
+        topic = await Topic.findById(id).populate({
+          path: "lectures",
+          select: process.env.LECTURE_PREVIEW_FIELDS,
+          options: {
+            skip: MAX_LECTURES * fetch_index,
+            limit: MAX_LECTURES + 1,
+          },
+          populate: { path: "topics" },
+        });
+        break;
+    }
 
     // error process
     if (!topic || topic.lectures.length === 0) {

@@ -87,8 +87,8 @@ export const finishGithubLogin = async (req, res) => {
     }
 
     // login
-    req.session.loggedIn = true;
     req.session.user = user;
+    req.session.loggedIn = true;
 
     return res.status(200).redirect(loginSuccessedUrl);
   } catch (error) {
@@ -183,8 +183,8 @@ export const finishKakaoLogin = async (req, res) => {
     }
 
     // login
-    req.session.loggedIn = true;
     req.session.user = user;
+    req.session.loggedIn = true;
 
     return res.redirect(loginSuccessedUrl);
   } catch (error) {
@@ -269,8 +269,8 @@ export const finishNaverLogin = async (req, res) => {
     }
 
     // login
-    req.session.loggedIn = true;
     req.session.user = user;
+    req.session.loggedIn = true;
 
     return res.redirect(loginSuccessedUrl);
   } catch (error) {
@@ -357,8 +357,8 @@ export const finishGoogleLogin = async (req, res) => {
     }
 
     // login
-    req.session.loggedIn = true;
     req.session.user = user;
+    req.session.loggedIn = true;
 
     return res.redirect(loginSuccessedUrl);
   } catch (error) {

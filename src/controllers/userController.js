@@ -12,31 +12,7 @@ import {
 } from "./socialController";
 
 export const getUser = async (req, res) => {
-  const { loggedIn, user } = req.session;
-
-  if (!loggedIn) {
-    return res.sendStatus(404);
-  }
-
-  // const viewed = await Promise.all(
-  //   user.viewed.map(async (obj) => ({
-  //     video: await Video.findById(obj.video, {
-  //       select: "belongIn embededCode player",
-  //     }).lean(),
-  //     time: obj.time,
-  //   }))
-  // );
-
-  // const client = {
-  //   email: user.email,
-  //   username: user.username,
-  //   avatarUrl: user.avatarUrl,
-  //   viewed,
-  //   booked: user.booked,
-  //   liked: user.liked,
-  //   hated: user.hated,
-  // };
-
+  const { user } = req.session;
   return res.status(200).json(user);
 };
 
