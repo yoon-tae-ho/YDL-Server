@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
       videos: [
         {
           videoId: { type: mongoose.ObjectId, required: true },
+          videoTitle: { type: String, required: true },
           videoCode: { type: String, required: true }, // video embededCode
           videoIndex: { type: Number, required: true },
           player: { type: String, required: true },
