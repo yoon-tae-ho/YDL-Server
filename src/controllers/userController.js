@@ -1,3 +1,4 @@
+import Lecture from "../models/Lecture";
 import User from "../models/User";
 import Video from "../models/Video";
 import {
@@ -116,11 +117,11 @@ export const putViewed = async (req, res) => {
       ];
     }
 
-    // update in DB
-    await User.findByIdAndUpdate(_id, { viewed: newViewed });
-
     // update in req.session
     req.session.user.viewed = newViewed;
+
+    // update in DB
+    await User.findByIdAndUpdate(_id, { viewed: newViewed });
 
     return res.status(200).json(newViewed);
   } catch (error) {
@@ -144,11 +145,11 @@ export const postBooked = async (req, res) => {
 
   const newBooked = [id, ...booked];
 
-  // update in DB
-  await User.findByIdAndUpdate(_id, { booked: newBooked });
-
   // update in req.session
   req.session.user.booked = newBooked;
+
+  // update in DB
+  await User.findByIdAndUpdate(_id, { booked: newBooked });
 
   return res.sendStatus(200);
 };
@@ -167,11 +168,11 @@ export const deleteBooked = async (req, res) => {
 
   const newBooked = booked.filter((aBook) => String(aBook) !== String(id));
 
-  // update in DB
-  await User.findByIdAndUpdate(_id, { booked: newBooked });
-
   // update in req.session
   req.session.user.booked = newBooked;
+
+  // update in DB
+  await User.findByIdAndUpdate(_id, { booked: newBooked });
 
   return res.sendStatus(200);
 };
@@ -185,29 +186,44 @@ export const postLiked = async (req, res) => {
   } = req;
   let isHated = false;
 
-  if (checkArray(liked, id)) {
-    return res.sendStatus(400);
+  try {
+    const lecture = await Lecture.findById(id, "meta");
+
+    if (!lecture) {
+      return res.sendStatus(404);
+    }
+
+    if (checkArray(liked, id)) {
+      return res.sendStatus(400);
+    }
+    if (checkArray(hated, id)) {
+      isHated = true;
+    }
+
+    const newLiked = [id, ...liked];
+    const newHated = !isHated
+      ? hated
+      : hated.filter((aHate) => String(aHate) !== String(id));
+
+    // update in req.session
+    req.session.user.liked = newLiked;
+    req.session.user.hated = newHated;
+
+    // update in DB
+    await User.findByIdAndUpdate(_id, {
+      liked: newLiked,
+      hated: newHated,
+    });
+    lecture.meta.likes += 1;
+    if (isHated) {
+      lecture.meta.hates -= 1;
+    }
+    await lecture.save();
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
   }
-  if (checkArray(hated, id)) {
-    isHated = true;
-  }
-
-  const newLiked = [id, ...liked];
-  const newHated = !isHated
-    ? hated
-    : hated.filter((aHate) => String(aHate) !== String(id));
-
-  // update in DB
-  await User.findByIdAndUpdate(_id, {
-    liked: newLiked,
-    hated: newHated,
-  });
-
-  // update in req.session
-  req.session.user.liked = newLiked;
-  req.session.user.hated = newHated;
-
-  return res.sendStatus(200);
 };
 
 export const deleteLiked = async (req, res) => {
@@ -218,19 +234,31 @@ export const deleteLiked = async (req, res) => {
     },
   } = req;
 
-  if (!checkArray(liked, id)) {
-    return res.sendStatus(400);
+  try {
+    const lecture = await Lecture.findById(id, "meta");
+
+    if (!lecture) {
+      return res.sendStatus(404);
+    }
+
+    if (!checkArray(liked, id)) {
+      return res.sendStatus(400);
+    }
+
+    const newLiked = liked.filter((aLike) => String(aLike) !== String(id));
+
+    // update in req.session
+    req.session.user.liked = newLiked;
+
+    // update in DB
+    await User.findByIdAndUpdate(_id, { liked: newLiked });
+    lecture.meta.likes -= 1;
+    await lecture.save();
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
   }
-
-  const newLiked = liked.filter((aLike) => String(aLike) !== String(id));
-
-  // update in DB
-  await User.findByIdAndUpdate(_id, { liked: newLiked });
-
-  // update in req.session
-  req.session.user.liked = newLiked;
-
-  return res.sendStatus(200);
 };
 
 export const postHated = async (req, res) => {
@@ -242,29 +270,44 @@ export const postHated = async (req, res) => {
   } = req;
   let isLiked = false;
 
-  if (checkArray(hated, id)) {
-    return res.sendStatus(400);
+  try {
+    const lecture = await Lecture.findById(id, "meta");
+
+    if (!lecture) {
+      return res.sendStatus(404);
+    }
+
+    if (checkArray(hated, id)) {
+      return res.sendStatus(400);
+    }
+    if (checkArray(liked, id)) {
+      isLiked = true;
+    }
+
+    const newHated = [id, ...hated];
+    const newLiked = !isLiked
+      ? liked
+      : liked.filter((aLike) => String(aLike) !== String(id));
+
+    // update in req.session
+    req.session.user.hated = newHated;
+    req.session.user.liked = newLiked;
+
+    // update in DB
+    await User.findByIdAndUpdate(_id, {
+      hated: newHated,
+      liked: newLiked,
+    });
+    lecture.meta.hates += 1;
+    if (isLiked) {
+      lecture.meta.likes -= 1;
+    }
+    await lecture.save();
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
   }
-  if (checkArray(liked, id)) {
-    isLiked = true;
-  }
-
-  const newHated = [id, ...hated];
-  const newLiked = !isLiked
-    ? liked
-    : liked.filter((aLike) => String(aLike) !== String(id));
-
-  // update in DB
-  awaitUser.findByIdAndUpdate(_id, {
-    hated: newHated,
-    liked: newLiked,
-  });
-
-  // update in req.session
-  req.session.user.hated = newHated;
-  req.session.user.liked = newLiked;
-
-  return res.sendStatus(200);
 };
 
 export const deleteHated = async (req, res) => {
@@ -275,19 +318,31 @@ export const deleteHated = async (req, res) => {
     },
   } = req;
 
-  if (!checkArray(hated, id)) {
-    return res.sendStatus(400);
+  try {
+    const lecture = await Lecture.findById(id, "meta");
+
+    if (!lecture) {
+      return res.sendStatus(404);
+    }
+
+    if (!checkArray(hated, id)) {
+      return res.sendStatus(400);
+    }
+
+    const newHated = hated.filter((aHate) => String(aHate) !== String(id));
+
+    // update in req.session
+    req.session.user.hated = newHated;
+
+    // update in DB
+    await User.findByIdAndUpdate(_id, { hated: newHated });
+    lecture.meta.hates -= 1;
+    await lecture.save();
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
   }
-
-  const newHated = hated.filter((aHate) => String(aHate) !== String(id));
-
-  // update in DB
-  awaitUser.findByIdAndUpdate(_id, { hated: newHated });
-
-  // update in req.session
-  req.session.user.hated = newHated;
-
-  return res.sendStatus(200);
 };
 
 export const startSocialLogin = (req, res) => {
