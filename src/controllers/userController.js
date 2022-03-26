@@ -12,8 +12,16 @@ import {
 } from "./socialController";
 
 export const getUser = async (req, res) => {
-  const { user } = req.session;
-  return res.status(200).json(user);
+  const {
+    user: { _id },
+  } = req.session;
+  try {
+    const user = await User.findById(_id).lean();
+    req.session.user = user;
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const putUser = (req, res) => {};
@@ -122,7 +130,7 @@ export const putViewed = async (req, res) => {
 
 export const deleteViewed = (req, res) => {};
 
-export const postBooked = (req, res) => {
+export const postBooked = async (req, res) => {
   const {
     params: { id },
     session: {
@@ -137,7 +145,7 @@ export const postBooked = (req, res) => {
   const newBooked = [id, ...booked];
 
   // update in DB
-  User.findByIdAndUpdate(_id, { booked: newBooked });
+  await User.findByIdAndUpdate(_id, { booked: newBooked });
 
   // update in req.session
   req.session.user.booked = newBooked;
@@ -145,7 +153,7 @@ export const postBooked = (req, res) => {
   return res.sendStatus(200);
 };
 
-export const deleteBooked = (req, res) => {
+export const deleteBooked = async (req, res) => {
   const {
     params: { id },
     session: {
@@ -160,7 +168,7 @@ export const deleteBooked = (req, res) => {
   const newBooked = booked.filter((aBook) => String(aBook) !== String(id));
 
   // update in DB
-  User.findByIdAndUpdate(_id, { booked: newBooked });
+  await User.findByIdAndUpdate(_id, { booked: newBooked });
 
   // update in req.session
   req.session.user.booked = newBooked;
@@ -168,7 +176,7 @@ export const deleteBooked = (req, res) => {
   return res.sendStatus(200);
 };
 
-export const postLiked = (req, res) => {
+export const postLiked = async (req, res) => {
   const {
     params: { id },
     session: {
@@ -190,7 +198,7 @@ export const postLiked = (req, res) => {
     : hated.filter((aHate) => String(aHate) !== String(id));
 
   // update in DB
-  User.findByIdAndUpdate(_id, {
+  await User.findByIdAndUpdate(_id, {
     liked: newLiked,
     hated: newHated,
   });
@@ -202,7 +210,7 @@ export const postLiked = (req, res) => {
   return res.sendStatus(200);
 };
 
-export const deleteLiked = (req, res) => {
+export const deleteLiked = async (req, res) => {
   const {
     params: { id },
     session: {
@@ -217,7 +225,7 @@ export const deleteLiked = (req, res) => {
   const newLiked = liked.filter((aLike) => String(aLike) !== String(id));
 
   // update in DB
-  User.findByIdAndUpdate(_id, { liked: newLiked });
+  await User.findByIdAndUpdate(_id, { liked: newLiked });
 
   // update in req.session
   req.session.user.liked = newLiked;
@@ -225,7 +233,7 @@ export const deleteLiked = (req, res) => {
   return res.sendStatus(200);
 };
 
-export const postHated = (req, res) => {
+export const postHated = async (req, res) => {
   const {
     params: { id },
     session: {
@@ -247,7 +255,7 @@ export const postHated = (req, res) => {
     : liked.filter((aLike) => String(aLike) !== String(id));
 
   // update in DB
-  User.findByIdAndUpdate(_id, {
+  awaitUser.findByIdAndUpdate(_id, {
     hated: newHated,
     liked: newLiked,
   });
@@ -259,7 +267,7 @@ export const postHated = (req, res) => {
   return res.sendStatus(200);
 };
 
-export const deleteHated = (req, res) => {
+export const deleteHated = async (req, res) => {
   const {
     params: { id },
     session: {
@@ -274,7 +282,7 @@ export const deleteHated = (req, res) => {
   const newHated = hated.filter((aHate) => String(aHate) !== String(id));
 
   // update in DB
-  User.findByIdAndUpdate(_id, { hated: newHated });
+  awaitUser.findByIdAndUpdate(_id, { hated: newHated });
 
   // update in req.session
   req.session.user.hated = newHated;

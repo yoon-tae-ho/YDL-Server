@@ -5,6 +5,7 @@ import Topic from "../models/Topic";
 
 const MAX_BROWSE_LECTURES = 40;
 const CONTINUE_WATCHING = "continue-watching";
+const MY_LIST = "my-list";
 
 export const getInitial = async (req, res) => {
   const {
@@ -120,16 +121,25 @@ export const getLecturesOfTopic = async (req, res) => {
     session: { loggedIn, user },
   } = req;
 
-  let username, viewed;
-  if (user) {
-    ({ username, viewed } = user);
-  }
-
   const MAX_LECTURES = 40;
   let ended = false;
 
+  const getLectures = async (lectureIdList) => {
+    return await Promise.all(
+      lectureIdList.map((element) =>
+        Lecture.findById(element, process.env.LECTURE_PREVIEW_FIELDS, {
+          options: { limit: MAX_BROWSE_LECTURES },
+        })
+          .populate("topics")
+          .lean()
+      )
+    );
+  };
+
   try {
     let topic = {};
+    const start = MAX_LECTURES * fetch_index;
+    const end = start + MAX_LECTURES + 1;
     switch (id) {
       case CONTINUE_WATCHING:
         if (!loggedIn) {
@@ -138,27 +148,31 @@ export const getLecturesOfTopic = async (req, res) => {
 
         topic = {
           _id: CONTINUE_WATCHING,
-          name: `${username} 님이 시청중인 강의`,
+          name: `${user.username} 님이 시청중인 강의`,
           lectures: [],
         };
 
-        const start = MAX_LECTURES * fetch_index;
-        const end = start + MAX_LECTURES + 1;
-        const targetViewed = viewed.slice(start, end);
+        const targetViewed = user.viewed.slice(start, end);
 
-        topic.lectures = await Promise.all(
-          targetViewed.map((aView) =>
-            Lecture.findById(
-              aView.lectureId,
-              process.env.LECTURE_PREVIEW_FIELDS,
-              {
-                options: { limit: MAX_BROWSE_LECTURES },
-              }
-            )
-              .populate("topics")
-              .lean()
-          )
+        topic.lectures = await getLectures(
+          targetViewed.map((aView) => aView.lectureId)
         );
+        break;
+
+      case MY_LIST:
+        if (!loggedIn) {
+          return res.sendStatus(401);
+        }
+
+        topic = {
+          _id: MY_LIST,
+          name: `${user.username} 님이 찜한 강의`,
+          lectures: [],
+        };
+
+        const targetBooked = user.booked.slice(start, end);
+
+        topic.lectures = await getLectures(targetBooked);
         break;
 
       default:
@@ -166,8 +180,8 @@ export const getLecturesOfTopic = async (req, res) => {
           path: "lectures",
           select: process.env.LECTURE_PREVIEW_FIELDS,
           options: {
-            skip: MAX_LECTURES * fetch_index,
-            limit: MAX_LECTURES + 1,
+            skip: start,
+            limit: end - start,
           },
           populate: { path: "topics" },
         });
