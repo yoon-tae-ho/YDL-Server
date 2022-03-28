@@ -193,8 +193,7 @@ export const getLecturesOfTopic = async (req, res) => {
       return res.sendStatus(404);
     }
 
-    const count = topic.lectures.length;
-    if (count === MAX_LECTURES + 1) {
+    if (topic.lectures.length === MAX_LECTURES + 1) {
       // not ended
       topic.lectures = topic.lectures.slice(0, -1);
     } else {

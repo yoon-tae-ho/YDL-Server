@@ -1,19 +1,48 @@
 import Lecture from "../models/Lecture";
-import Instructor from "../models/Instructor";
-import Video from "../models/Video";
-import Topic from "../models/Topic";
 
-export const getLecturePreviews = async (req, res) => {
+export const searchLectures = async (req, res) => {
+  const {
+    params: { text },
+    headers: { fetch_index },
+  } = req;
+  if (!text) {
+    return res.sendStatus(400);
+  }
+
+  const MAX_LECTURES = 40;
+  let ended = false;
+
   try {
-    const lectures = await Lecture.find({})
-      .select(`${process.env.LECTURE_PREVIEW_FIELDS}`)
-      .populate({
-        path: "topics",
-        select: "name",
-      });
-    return res.status(200).json(lectures);
+    const regex = new RegExp(text, "i");
+    const config = [{ title: regex }, { institute: regex }];
+
+    let lectures = await Lecture.find(
+      { $or: config },
+      process.env.LECTURE_PREVIEW_FIELDS,
+      {
+        skip: MAX_LECTURES * fetch_index,
+        limit: MAX_LECTURES + 1,
+      }
+    )
+      .populate("topics")
+      .lean();
+
+    // error process
+    if (!lectures || lectures.length === 0) {
+      return res.sendStatus(404);
+    }
+
+    if (lectures.length === MAX_LECTURES + 1) {
+      // not ended
+      lectures = lectures.slice(0, -1);
+    } else {
+      // ended
+      ended = true;
+    }
+
+    return res.status(200).json({ lectures, ended });
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
   }
 };
 
