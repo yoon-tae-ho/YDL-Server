@@ -1,10 +1,10 @@
+import Instructor from "../models/Instructor";
 import Lecture from "../models/Lecture";
+import Topic from "../models/Topic";
 
 export const searchLectures = async (req, res) => {
-  const {
-    params: { text },
-    headers: { fetch_index },
-  } = req;
+  const { text } = req.params;
+  const excepts = JSON.parse(req.headers.excepts);
   if (!text) {
     return res.sendStatus(400);
   }
@@ -12,29 +12,110 @@ export const searchLectures = async (req, res) => {
   const MAX_LECTURES = 40;
   let ended = false;
 
-  try {
-    const regex = new RegExp(text, "i");
-    const config = [{ title: regex }, { institute: regex }];
+  const extractLectures = (documents, maxLength) => {
+    const result = [];
 
+    for (let i = 0; i < documents.length; ++i) {
+      let isEnded = false;
+      for (let j = 0; j < documents[i].lectures.length; ++j) {
+        const index = result.findIndex(
+          (lecture) =>
+            String(lecture._id) === String(documents[i].lectures[j]._id)
+        );
+
+        if (index === -1) {
+          result.push(documents[i].lectures[j]);
+          // Add new queried lectures to excepts
+          excepts.push(documents[i].lectures[j]._id);
+        }
+
+        if (result.length >= maxLength) {
+          isEnded = true;
+          break;
+        }
+      }
+      if (isEnded) {
+        break;
+      }
+    }
+
+    return result;
+  };
+
+  try {
+    // 1. title, institute
     let lectures = await Lecture.find(
-      { $or: config },
+      { $and: [{ $text: { $search: text } }, { _id: { $nin: excepts } }] },
       process.env.LECTURE_PREVIEW_FIELDS,
       {
-        skip: MAX_LECTURES * fetch_index,
         limit: MAX_LECTURES + 1,
+        score: { $meta: "textScore" },
       }
     )
-      .populate("topics")
+      .sort({ score: { $meta: "textScore" } })
       .lean();
+
+    // Add new queried lectures to excepts
+    lectures.forEach((lecture) => excepts.push(String(lecture._id)));
+
+    // 2. topic
+    if (lectures.length < MAX_LECTURES + 1) {
+      const limit = MAX_LECTURES + 1 - lectures.length;
+
+      const topics = await Topic.find(
+        { $text: { $search: text } },
+        "lectures",
+        {
+          score: { $meta: "textScore" },
+        }
+      )
+        .populate({
+          path: "lectures",
+          match: { _id: { $nin: excepts } },
+          select: process.env.LECTURE_PREVIEW_FIELDS,
+          options: { limit },
+        })
+        .sort({ score: { $meta: "textScore" } })
+        .lean();
+
+      if (topics.length !== 0) {
+        const newLectures = extractLectures(topics, limit);
+        lectures = [...lectures, ...newLectures];
+      }
+    }
+
+    // 3. instructor
+    if (lectures.length < MAX_LECTURES + 1) {
+      const limit = MAX_LECTURES + 1 - lectures.length;
+
+      const instructors = await Instructor.find(
+        { $text: { $search: text } },
+        "lectures",
+        { score: { $meta: "textScore" } }
+      )
+        .populate({
+          path: "lectures",
+          match: { _id: { $nin: excepts } },
+          select: process.env.LECTURE_PREVIEW_FIELDS,
+          options: { limit },
+        })
+        .sort({ score: { $meta: "textScore" } })
+        .lean();
+
+      if (instructors.length !== 0) {
+        const newLectures = extractLectures(instructors, limit);
+        lectures = [...lectures, ...newLectures];
+      }
+    }
 
     // error process
     if (!lectures || lectures.length === 0) {
       return res.sendStatus(404);
     }
 
-    if (lectures.length === MAX_LECTURES + 1) {
+    if (lectures.length > MAX_LECTURES) {
       // not ended
-      lectures = lectures.slice(0, -1);
+      lectures = lectures.slice(0, MAX_LECTURES);
     } else {
       // ended
       ended = true;

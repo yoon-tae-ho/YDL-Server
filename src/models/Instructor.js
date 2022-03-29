@@ -16,6 +16,8 @@ instructorSchema.virtual("lectures", {
   foreignField: "instructors",
 });
 
+instructorSchema.index({ name: "text" });
+
 const Instructor = mongoose.model("Instructor", instructorSchema);
 
 export default Instructor;

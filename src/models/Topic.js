@@ -16,6 +16,8 @@ topicSchema.virtual("lectures", {
   foreignField: "topics",
 });
 
+topicSchema.index({ name: "text" });
+
 const Topic = mongoose.model("Topic", topicSchema);
 
 export default Topic;

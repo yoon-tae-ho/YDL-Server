@@ -29,6 +29,8 @@ lectureSchema.virtual("videos", {
   foreignField: "belongIn",
 });
 
+lectureSchema.index({ title: "text", institute: "text" });
+
 const Lecture = mongoose.model("Lecture", lectureSchema);
 
 export default Lecture;
