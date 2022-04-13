@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node build/init.js",
+    "build": "babel src -d build",
     "dev": "nodemon"
   },
   "keywords": [],
@@ -18,10 +20,12 @@
     "express-session": "^1.17.2",
     "mongoose": "^6.2.1",
     "morgan": "^1.10.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "regenerator-runtime": "^0.13.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.0",
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.9",
     "@babel/node": "^7.16.8",
     "@babel/preset-env": "^7.16.11",
     "nodemon": "^2.0.15"
