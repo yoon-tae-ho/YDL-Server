@@ -17,7 +17,7 @@ export const sessionMiddleware = session({
     httpOnly: true,
     sameSite: "strict",
     maxAge: 3 * 24 * 60 * 60 * 1000, // Three Days
-    // secure: true, // after https
+    secure: process.env.NODE_ENV === "production" ? true : false, // after https
   },
 });
 
