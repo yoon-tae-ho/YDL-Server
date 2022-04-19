@@ -9,8 +9,8 @@ const lectureSchema = new mongoose.Schema(
     topics: [{ type: mongoose.ObjectId, ref: "Topic", trim: true }],
     asTaughtIn: { type: String, required: true, trim: true },
     institute: { type: String, required: true, trim: true },
-    level: { type: String, trim: true },
-    description: { type: String, required: true },
+    levels: [{ type: String, trim: true }],
+    description: { type: String },
     thumbnailUrl: { type: String, required: true },
     meta: {
       likes: { type: Number, required: true, default: 0 },
