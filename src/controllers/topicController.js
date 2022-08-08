@@ -1,11 +1,32 @@
 import Lecture from "../models/Lecture";
 import Instructor from "../models/Instructor";
-import Video from "../models/Video";
 import Topic from "../models/Topic";
 
 const MAX_BROWSE_LECTURES = 40;
 const CONTINUE_WATCHING = "continue-watching";
 const MY_LIST = "my-list";
+
+export const browseTopics = async (req, res) => {
+  const {
+    headers: { new_indexes },
+  } = req;
+  const newIndexes = JSON.parse(new_indexes);
+
+  try {
+    const topics = await Topic.find({ index: newIndexes }).populate({
+      path: "lectures",
+      select: process.env.LECTURE_PREVIEW_FIELDS,
+      options: { limit: MAX_BROWSE_LECTURES },
+      populate: { path: "topics" },
+    });
+
+    return res.json({
+      topics,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const getInitial = async (req, res) => {
   const {
@@ -68,47 +89,9 @@ export const getInitial = async (req, res) => {
       }
     }
 
-    return res.status(200).json(result);
-  } catch (error) {
-    console.log(error);
-  }
-};
+    const numOfTopics = await Topic.estimatedDocumentCount();
 
-export const getMore = async (req, res) => {
-  const excepts = JSON.parse(req.headers.excepts).filter(
-    (except) => except !== CONTINUE_WATCHING
-  );
-  const MAX_TOPIC = 5;
-  const result = [];
-  try {
-    let count = (await Topic.estimatedDocumentCount()) - excepts.length;
-    let randomIndex = Math.floor(Math.random() * count);
-    const ended = count <= MAX_TOPIC;
-
-    for (let i = 0; i < (ended ? count + i : MAX_TOPIC); ++i) {
-      const topic = await Topic.findOne({
-        _id: { $nin: excepts },
-      })
-        .populate({
-          path: "lectures",
-          select: process.env.LECTURE_PREVIEW_FIELDS,
-          options: { limit: MAX_BROWSE_LECTURES },
-          populate: { path: "topics" },
-        })
-        .skip(randomIndex);
-
-      // error process
-      if (!topic) {
-        return res.sendStatus(404);
-      }
-
-      excepts.push(topic._id);
-      --count;
-      randomIndex = Math.floor(Math.random() * count);
-      result.push(topic);
-    }
-
-    return res.status(200).json({ result, ended });
+    return res.status(200).json({ topics: result, numOfTopics });
   } catch (error) {
     console.log(error);
   }
