@@ -13,13 +13,19 @@ import {
 } from "./socialController";
 
 export const getUser = async (req, res) => {
-  const {
-    user: { _id },
-  } = req.session;
+  const _id = req.session?.user?._id;
   try {
     const user = await User.findById(_id).lean();
-    req.session.user = user;
-    return res.status(200).json(user);
+
+    let result;
+    if (!user) {
+      result = { loggedIn: false };
+    } else {
+      req.session.user = user;
+      result = { loggedIn: true, user };
+    }
+
+    return res.status(200).json(result);
   } catch (error) {
     console.log(error);
   }

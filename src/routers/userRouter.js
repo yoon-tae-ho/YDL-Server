@@ -44,8 +44,8 @@ userRouter
   .delete(deleteHated);
 userRouter
   .route("/")
-  .all(protectorMiddleware)
   .get(getUser)
+  .all(protectorMiddleware)
   .put(putUser)
   .delete(deleteUser);
 
