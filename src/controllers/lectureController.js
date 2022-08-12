@@ -26,7 +26,7 @@ export const searchLectures = async (req, res) => {
         if (index === -1) {
           result.push(documents[i].lectures[j]);
           // Add new queried lectures to excepts
-          excepts.push(documents[i].lectures[j]._id);
+          excepts.push(String(documents[i].lectures[j]._id));
         }
 
         if (result.length >= maxLength) {
@@ -52,6 +52,7 @@ export const searchLectures = async (req, res) => {
         score: { $meta: "textScore" },
       }
     )
+      .populate("topics")
       .sort({ score: { $meta: "textScore" } })
       .lean();
 
@@ -74,9 +75,9 @@ export const searchLectures = async (req, res) => {
           match: { _id: { $nin: excepts } },
           select: process.env.LECTURE_PREVIEW_FIELDS,
           options: { limit },
+          populate: { path: "topics" },
         })
-        .sort({ score: { $meta: "textScore" } })
-        .lean();
+        .sort({ score: { $meta: "textScore" } });
 
       if (topics.length !== 0) {
         const newLectures = extractLectures(topics, limit);
@@ -98,19 +99,14 @@ export const searchLectures = async (req, res) => {
           match: { _id: { $nin: excepts } },
           select: process.env.LECTURE_PREVIEW_FIELDS,
           options: { limit },
+          populate: { path: "topics" },
         })
-        .sort({ score: { $meta: "textScore" } })
-        .lean();
+        .sort({ score: { $meta: "textScore" } });
 
       if (instructors.length !== 0) {
         const newLectures = extractLectures(instructors, limit);
         lectures = [...lectures, ...newLectures];
       }
-    }
-
-    // error process
-    if (!lectures || lectures.length === 0) {
-      return res.sendStatus(404);
     }
 
     if (lectures.length > MAX_LECTURES) {
@@ -120,6 +116,17 @@ export const searchLectures = async (req, res) => {
       // ended
       ended = true;
     }
+
+    // test duplicate
+    // let duplicate = false;
+    // for (let i = 0; i < excepts.length; ++i) {
+    //   if (lectures.findIndex((lecture) => lecture._id === excepts[i]) !== -1) {
+    //     // excepts와 겹치는 강의 발견.
+    //     duplicate = true;
+    //     return;
+    //   }
+    // }
+    // console.log("duplicate: ", duplicate);
 
     return res.status(200).json({ lectures, ended });
   } catch (error) {
