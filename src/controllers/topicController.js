@@ -246,3 +246,12 @@ export const getLecturesOfInstructors = async (req, res) => {
     console.log(error.message);
   }
 };
+
+export const getCategory = async (req, res) => {
+  try {
+    const topics = await Topic.find({}, "_id name").lean();
+    return res.json(topics);
+  } catch (error) {
+    console.log(error);
+  }
+};
