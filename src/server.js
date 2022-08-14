@@ -10,6 +10,9 @@ import { corsMiddleware, sessionMiddleware } from "./middlewares";
 
 const app = express();
 
+// Settings
+app.set("trust proxy", 1);
+
 // Middlewares
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
