@@ -2,6 +2,8 @@ import cors from "cors";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 
+const isHeroku = process.env.NODE_ENV === "production";
+
 export const corsMiddleware = cors({
   origin: process.env.CORS_URL,
   optionsSuccessStatus: 200,
@@ -15,9 +17,9 @@ export const sessionMiddleware = session({
   saveUninitialized: false, // dont save session in DB if he did not login.
   cookie: {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: isHeroku ? "none" : "strict",
     maxAge: 3 * 24 * 60 * 60 * 1000, // Three Days
-    secure: process.env.NODE_ENV === "production" ? true : false, // after https
+    secure: isHeroku ? true : false, // after https
   },
 });
 
