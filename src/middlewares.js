@@ -19,7 +19,7 @@ export const sessionMiddleware = session({
     httpOnly: true,
     sameSite: isHeroku ? "none" : "strict",
     maxAge: 3 * 24 * 60 * 60 * 1000, // Three Days
-    secure: isHeroku ? true : false, // after https
+    secure: isHeroku, // after https
   },
 });
 

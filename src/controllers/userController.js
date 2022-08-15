@@ -12,23 +12,17 @@ import {
   finishGoogleLogin,
 } from "./socialController";
 
-export const getUser = async (req, res) => {
-  const _id = req.session?.user?._id;
-  try {
-    const user = await User.findById(_id).lean();
+export const getUser = (req, res) => {
+  const { loggedIn, user } = req.session;
 
-    let result;
-    if (!user) {
-      result = { loggedIn: false };
-    } else {
-      req.session.user = user;
-      result = { loggedIn: true, user };
-    }
-
-    return res.status(200).json(result);
-  } catch (error) {
-    console.log(error);
+  let result;
+  if (!loggedIn) {
+    result = { loggedIn: false };
+  } else {
+    result = { loggedIn: true, user };
   }
+
+  return res.status(200).json(result);
 };
 
 export const putUser = (req, res) => {};
