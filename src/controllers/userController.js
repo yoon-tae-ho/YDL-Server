@@ -59,7 +59,7 @@ export const putViewed = async (req, res) => {
   try {
     const videoObj = await Video.findById(
       id,
-      "belongIn embededCode videoIndex title player"
+      "belongIn videoIndex title"
     ).lean();
 
     // this video does not exist.
@@ -84,7 +84,6 @@ export const putViewed = async (req, res) => {
     const newVideo = {
       videoId: id,
       videoTitle: videoObj.title,
-      videoCode: videoObj.embededCode,
       videoIndex: videoObj.videoIndex,
       player: videoObj.player,
       time,
