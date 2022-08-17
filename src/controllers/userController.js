@@ -34,7 +34,10 @@ export const getViewed = async (req, res) => {
   } = req;
 
   try {
-    const video = await Video.findById(id, "embededCode player").lean();
+    const video = await Video.findById(
+      id,
+      "embededCode videoSrc videoType trackSrc trackKind trackSrclang thumbnailUrl player"
+    ).lean();
 
     // error process
     if (!video) {

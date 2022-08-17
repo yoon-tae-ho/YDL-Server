@@ -3,6 +3,5 @@
 .env
 /build
 
-src/data/
-src/data.js
 src/fakeData.js
+src/resources
