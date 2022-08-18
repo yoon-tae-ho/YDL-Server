@@ -8,7 +8,7 @@ export const getVideo = async (req, res) => {
   try {
     const video = await Video.findById(
       id,
-      "belongIn embededCode videoSrc videoType trackSrc trackKind trackSrclang thumbnailUrl player"
+      "belongIn videoIndex embededCode videoSrc videoType trackSrc trackKind trackSrclang thumbnailUrl player"
     ).lean();
 
     // error process
