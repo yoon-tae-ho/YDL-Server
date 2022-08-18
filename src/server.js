@@ -7,6 +7,7 @@ import lectureRouter from "./routers/lectureRouter";
 import userRouter from "./routers/userRouter";
 import topicRouter from "./routers/topicRouter";
 import { corsMiddleware, sessionMiddleware } from "./middlewares";
+import videoRouter from "./routers/videoRouter";
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use(sessionMiddleware);
 app.use("/topics", topicRouter);
 app.use("/lectures", lectureRouter);
 app.use("/user", userRouter);
+app.use("/videos", videoRouter);
 
 export default app;
