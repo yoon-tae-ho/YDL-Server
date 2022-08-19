@@ -7,11 +7,14 @@ const isHeroku = process.env.NODE_ENV === "production";
 const whitelist = process.env.CORS_URLS.split(" ");
 export const corsMiddleware = cors({
   origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+    // bypass the requests with no origin (like curl requests, mobile apps, redirect, etc )
+    if (!origin) return callback(null, true);
+
+    if (whitelist.indexOf(origin) === -1) {
+      var msg = "Not allowed by CORS";
+      return callback(new Error(msg), false);
     }
+    return callback(null, true);
   },
   optionsSuccessStatus: 200,
   credentials: true,
