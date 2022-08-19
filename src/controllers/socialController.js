@@ -2,8 +2,9 @@ import fetch from "node-fetch";
 
 import User from "../models/User";
 
-const loginFailedUrl = `${process.env.CORS_URL}/login`;
-const loginSuccessedUrl = `${process.env.CORS_URL}/`;
+const corsUrl = process.env.CORS_URLS.split(" ")[0];
+const loginFailedUrl = `${corsUrl}/login`;
+const loginSuccessedUrl = `${corsUrl}/`;
 
 // Github
 

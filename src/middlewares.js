@@ -42,7 +42,7 @@ export const protectorMiddleware = (req, res, next) => {
 
 export const publicOnlyMiddleware = (req, res, next) => {
   if (req.session.loggedIn) {
-    return res.status(403).redirect(`${process.env.CORS_URL}/`); // user detail 페이지 작성 후에는 거기로 redirect.
+    return res.status(403).redirect(`${whitelist[0]}/`); // user detail 페이지 작성 후에는 거기로 redirect.
   }
   return next();
 };

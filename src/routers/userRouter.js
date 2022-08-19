@@ -23,8 +23,8 @@ const userRouter = express.Router();
 // user data
 userRouter
   .route(`/viewed/:id(${process.env.MONGO_REGEX_FORMAT})`) // id of video
-  .get(getViewed)
   .all(protectorMiddleware)
+  .get(getViewed)
   .put(putViewed)
   .delete(deleteViewed);
 userRouter

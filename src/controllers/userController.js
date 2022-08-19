@@ -28,27 +28,7 @@ export const getUser = (req, res) => {
 export const putUser = (req, res) => {};
 export const deleteUser = (req, res) => {};
 
-export const getViewed = async (req, res) => {
-  const {
-    params: { id },
-  } = req;
-
-  try {
-    const video = await Video.findById(
-      id,
-      "embededCode videoSrc videoType trackSrc trackKind trackSrclang thumbnailUrl player"
-    ).lean();
-
-    // error process
-    if (!video) {
-      return res.sendStatus(404);
-    }
-
-    return res.status(200).json(video);
-  } catch (error) {
-    console.log(error);
-  }
-};
+export const getViewed = async (req, res) => {};
 
 export const putViewed = async (req, res) => {
   const {
@@ -88,7 +68,6 @@ export const putViewed = async (req, res) => {
       videoId: id,
       videoTitle: videoObj.title,
       videoIndex: videoObj.videoIndex,
-      player: videoObj.player,
       time,
       duration,
     };
