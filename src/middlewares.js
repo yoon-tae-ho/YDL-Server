@@ -4,8 +4,15 @@ import MongoStore from "connect-mongo";
 
 const isHeroku = process.env.NODE_ENV === "production";
 
+const whitelist = process.env.CORS_URLS.split(" ");
 export const corsMiddleware = cors({
-  origin: process.env.CORS_URL,
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   optionsSuccessStatus: 200,
   credentials: true,
 });
