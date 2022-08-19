@@ -104,7 +104,7 @@ export const startKakaoLogin = (req, res) => {
   const baseUrl = "https://kauth.kakao.com/oauth/authorize";
   const config = {
     client_id: process.env.KAKAO_CLIENT,
-    redirect_uri: "http://localhost:4000/user/social/kakao/finish",
+    redirect_uri: `${window.location.origin}/user/social/kakao/finish`,
     response_type: "code",
   };
   const params = new URLSearchParams(config).toString();
@@ -118,7 +118,7 @@ export const finishKakaoLogin = async (req, res) => {
     grant_type: "authorization_code",
     client_id: process.env.KAKAO_CLIENT,
     client_secret: process.env.KAKAO_SECRET,
-    redirect_uri: "http://localhost:4000/user/social/kakao/finish",
+    redirect_uri: `${window.location.origin}/user/social/kakao/finish`,
     code: req.query.code,
   };
   const params = new URLSearchParams(config).toString();
@@ -201,7 +201,7 @@ export const startNaverLogin = (req, res) => {
   const config = {
     client_id: process.env.NAVER_CLIENT,
     response_type: "code",
-    redirect_uri: "http://localhost:4000/user/social/naver/finish",
+    redirect_uri: `${window.location.origin}/user/social/naver/finish`,
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
@@ -286,7 +286,7 @@ export const startGoogleLogin = (req, res) => {
   const baseUrl = "https://accounts.google.com/o/oauth2/v2/auth";
   const config = {
     client_id: process.env.GOOGLE_CLIENT,
-    redirect_uri: "http://localhost:4000/user/social/google/finish",
+    redirect_uri: `${window.location.origin}/user/social/google/finish`,
     response_type: "code",
     scope:
       "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
@@ -303,7 +303,7 @@ export const finishGoogleLogin = async (req, res) => {
     client_secret: process.env.GOOGLE_SECRET,
     code: req.query.code,
     grant_type: "authorization_code",
-    redirect_uri: "http://localhost:4000/user/social/google/finish",
+    redirect_uri: `${window.location.origin}/user/social/google/finish`,
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
