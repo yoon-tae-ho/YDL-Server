@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
   booked: [{ type: mongoose.ObjectId, ref: "Lecture" }],
   liked: [{ type: mongoose.ObjectId, ref: "Lecture" }],
   hated: [{ type: mongoose.ObjectId, ref: "Lecture" }],
+  test: { type: Boolean, default: true },
 });
 
 const User = mongoose.model("User", userSchema);

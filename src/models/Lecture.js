@@ -16,6 +16,7 @@ const lectureSchema = new mongoose.Schema(
       likes: { type: Number, required: true, default: 0 },
       hates: { type: Number, required: true, default: 0 },
     },
+    test: { type: Boolean, default: true },
   },
   {
     toJSON: { virtuals: true },

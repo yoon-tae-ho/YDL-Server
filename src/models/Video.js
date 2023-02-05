@@ -9,12 +9,13 @@ const videoSchema = new mongoose.Schema({
   player: { type: String, required: true },
   videoLink: { type: String },
   // player by player
-  embededCode: { type: String }, // YouTube Player
-  videoSrc: { type: String }, // Yale Player
-  videoType: { type: String }, // Yale Player
-  trackSrc: { type: String }, // Yale Player
-  trackKind: { type: String }, // Yale Player
-  trackSrclang: { type: String }, // Yale Player
+  embededCode: { type: String }, // YouTube
+  videoSrc: { type: String }, // Yale, Oxford
+  videoType: { type: String }, // Yale
+  trackSrc: { type: String }, // Yale
+  trackKind: { type: String }, // Yale
+  trackSrclang: { type: String }, // Yale
+  test: { type: Boolean, default: true },
 });
 
 const Video = mongoose.model("Video", videoSchema);

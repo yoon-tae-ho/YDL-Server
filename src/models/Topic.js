@@ -4,6 +4,7 @@ const topicSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true, trim: true },
     index: { type: Number, required: true, unique: true, index: true },
+    test: { type: Boolean, default: true },
   },
   {
     toJSON: { virtuals: true },

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const instructorSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    test: { type: Boolean, default: true },
   },
   {
     toJSON: { virtuals: true },
